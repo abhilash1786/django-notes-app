@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: build-and-push
 
 on:
   push:
@@ -6,37 +6,25 @@ on:
       - main
 
 env:
-  ECR_REGION: us-east-2
-  ECR_REGISTRY: public.ecr.aws/h2a8c7h3/demo-repo
-  DOCKER_IMAGE_TAG: latest
+  ECR_REPOSITORY: my-ecr-repo
+  IMAGE_TAG: latest
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Login to AWS ECR
-        id: login-ecr
+      - name: Build Docker image
+        run: docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+
+      - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
-        with:
-          region: ${{ env.ECR_REGION }}
-      
-      - name: Build Docker Image
-        id: build-image
-        run: |
-          docker build -t $ECR_REGISTRY:$DOCKER_IMAGE_TAG .
-          echo "::set-output name=image_uri::$ECR_REGISTRY:$DOCKER_IMAGE_TAG"
 
-      - name: Push Docker Image to ECR
-        id: push-image
-        uses: aws-actions/amazon-ecr-push-image@v1
+      - name: Push Docker image to Amazon ECR
+        uses: aws-actions/amazon-ecr-push-image@v2
         with:
-          region: ${{ env.ECR_REGION }}
-          registry: ${{ env.ECR_REGISTRY }}
-          image: ${{ steps.build-image.outputs.image_uri }}
-
-      - name: Cleanup
-        run: |
-          docker logout $ECR_REGISTRY
+          repository-name: $ECR_REPOSITORY
+          image-tag: $IMAGE_TAG
