@@ -1,3 +1,4 @@
+
 on:
   push:
     branches:
@@ -18,7 +19,7 @@ jobs:
           context: .
           push: true
           tags: public.ecr.aws/h2a8c7h3/demo-repo:latest
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: AKIAVZZODSRRZ357QN5T
+          aws-secret-access-key: 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
           aws-region: us-east-2
           node-version: '16'
