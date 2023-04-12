@@ -1,0 +1,14 @@
+build-and-push:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  variables:
+    AWS_ACCESS_KEY_ID: AKIAVZZODSRRZ357QN5T
+    AWS_SECRET_ACCESS_KEY: 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
+    AWS_REGION: us-east-2
+    ECR_REPOSITORY_URI: public.ecr.aws/h2a8c7h3/demo-repo
+  script:
+    - echo "$AWS_ACCESS_KEY_ID:$AWS_SECRET_ACCESS_KEY" | docker login -u AWS --password-stdin https://$ECR_REPOSITORY_URI
+    - docker build -t $ECR_REPOSITORY_URI .
+    - docker push $ECR_REPOSITORY_URI
