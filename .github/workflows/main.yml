@@ -19,3 +19,5 @@ build-and-push:
     - docker push $ECR_REPOSITORY_URI:$CI_COMMIT_SHORT_SHA
   only:
     - main
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
