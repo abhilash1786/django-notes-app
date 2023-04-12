@@ -6,28 +6,7 @@ on:
     branches:
       - main
 
-stages:
-  - build
-  - deploy
-
-build:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    - docker build -t my-image:latest .
-    - $(aws ecr get-login --no-include-email --region us-east-2)
-    - docker tag my-image:latest public.ecr.aws/h2a8c7h3/demo-repo:latest
-    - docker push public.ecr.aws/h2a8c7h3/demo-repo:latest
-
-deploy:
-  stage: deploy
-  image: python:3.9
-  script:
-    - echo "Deploying my-image:latest to production..."
-    
-    jobs:
+jobs:
   build:
     runs-on: ubuntu-latest
     steps:
@@ -36,5 +15,15 @@ deploy:
       - name: Build Docker image
         run: docker build -t my-image:latest .
       - name: Push Docker image
-        run: docker push my-image:latest
+        run: |
+          $(aws ecr get-login --no-include-email --region us-east-2)
+          docker tag my-image:latest public.ecr.aws/h2a8c7h3/demo-repo:latest
+          docker push public.ecr.aws/h2a8c7h3/demo-repo:latest
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        run: echo "Deploying my-image:latest to production..."
+        # Add deployment commands here
