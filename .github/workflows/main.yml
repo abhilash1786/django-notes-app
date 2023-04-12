@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: uses: actions/checkout@v2.5.1
+        uses: actions/checkout@v2.5.1
       - name: Install AWS CLI
         run: |
           sudo apt-get update && \
@@ -23,3 +23,10 @@ jobs:
           $(aws ecr get-login --no-include-email --region us-east-2)
           docker tag my-image:latest public.ecr.aws/h2a8c7h3/demo-repo:latest
           docker push public.ecr.aws/h2a8c7h3/demo-repo:latest
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to production
+        run: echo "Deploying my-image:latest to production..."
+        # Add deployment commands here
