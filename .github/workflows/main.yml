@@ -1,6 +1,13 @@
 
+name: My Workflow
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 jobs:
-  build:
+  my_job:
+
     steps:
     # see: https://github.com/aws-actions/configure-aws-credentials
     - name: Configure AWS Credentials
