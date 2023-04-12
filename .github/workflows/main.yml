@@ -1,36 +1,21 @@
 
-name: My Workflow
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-jobs:
-  my_job:
+stages:
+  - build
+  - deploy
 
-    steps:
-    # see: https://github.com/aws-actions/configure-aws-credentials
-    - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: AKIAVZZODSRRZ357QN5T
-        aws-secret-access-key: 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
-        aws-region: us-east-2
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker build -t my-image:latest .
+    - $(aws ecr get-login --no-include-email --region us-east-2)
+    - docker tag my-image:latest public.ecr.aws/h2a8c7h3/demo-repo:latest
+    - docker push public.ecr.aws/h2a8c7h3/demo-repo:latest
 
-    # see: https://github.com/aws-actions/amazon-ecr-login
-    - name: Log in to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build, tag, and push image to Amazon ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: reponame
-        IMAGE_TAG: ${{ github.sha }}
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-    - name: Log out of Amazon ECR
-      if: always()
-      run: docker logout ${{ steps.login-ecr.outputs.registry }}
+deploy:
+  stage: deploy
+  image: python:3.9
+  script:
+    - echo "Deploying my-image:latest to production..."
